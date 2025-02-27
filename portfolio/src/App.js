@@ -4,8 +4,10 @@ import { theme } from './styles/theme';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
+import Resume from './components/Resume';
 import Projects from './components/Projects';
 import Experience from './components/Experience';
+import Contact from './components/Contact';
 
 const AppContainer = styled.div`
   background-color: ${({ theme }) => theme.colors.background};
@@ -32,11 +34,17 @@ function App() {
         <Section id="about">
           <About />
         </Section>
+        <Section id="resume">
+          <Resume />
+        </Section>
         <Section id="projects">
           <Projects />
         </Section>
         <Section id="experience">
           <Experience />
+        </Section>
+        <Section id="contact">
+          <Contact />
         </Section>
       </AppContainer>
     </ThemeProvider>
