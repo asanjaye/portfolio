@@ -212,6 +212,7 @@ function Navbar() {
         <NavLink href="#about" onClick={closeMenu}>About</NavLink>
         <NavLink href="#resume" onClick={closeMenu}>Resume</NavLink>
         <NavLink href="#projects" onClick={closeMenu}>Projects</NavLink>
+        <NavLink href="#ai-automation" onClick={closeMenu}>AI Automation</NavLink>
         <NavLink href="#experience" onClick={closeMenu}>Experience</NavLink>
         <NavLink href="#contact" onClick={closeMenu}>Contact</NavLink>
         <SocialLinks>

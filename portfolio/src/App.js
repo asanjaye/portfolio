@@ -6,6 +6,7 @@ import Hero from './components/Hero';
 import About from './components/About';
 import Resume from './components/Resume';
 import Projects from './components/Projects';
+import AIAutomation from './components/AIAutomation';
 import Experience from './components/Experience';
 import Contact from './components/Contact';
 
@@ -39,6 +40,9 @@ function App() {
         </Section>
         <Section id="projects">
           <Projects />
+        </Section>
+        <Section id="ai-automation">
+          <AIAutomation />
         </Section>
         <Section id="experience">
           <Experience />
