@@ -8,7 +8,7 @@ export default function Footer() {
           © {new Date().getFullYear()} {profile.name}
         </p>
         <p className="font-mono text-xs tracking-wide">
-          AI agent & automation · human-in-the-loop by design
+          Software engineering & AI systems · human-in-the-loop by design
         </p>
       </div>
     </footer>

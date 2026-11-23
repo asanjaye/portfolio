@@ -135,27 +135,55 @@ export default function PipelineExplorer() {
         </div>
 
         <div
-          className="mt-8 flex gap-2 overflow-x-auto pb-1"
+          className="mt-8 grid gap-3 sm:grid-cols-2"
           role="tablist"
           aria-label="AI automation case studies"
         >
           {pipelines.map((p) => {
             const selected = p.id === active.id;
             return (
-              <button
+              <div
                 key={p.id}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                onClick={() => selectPipeline(p.id)}
-                className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition ${
+                className={`rounded-2xl border p-4 transition ${
                   selected
-                    ? 'border-ink bg-ink text-paper'
-                    : 'border-line bg-surface text-slate hover:border-signal hover:text-signal'
+                    ? 'border-ink bg-ink text-paper shadow-sm'
+                    : 'border-line bg-surface text-ink hover:border-signal'
                 }`}
               >
-                {p.title}
-              </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => selectPipeline(p.id)}
+                  className="w-full text-left"
+                >
+                  <span className="block font-display text-base font-bold tracking-tight">
+                    {p.title}
+                  </span>
+                  <span
+                    className={`mt-1 block font-mono text-[11px] uppercase tracking-[0.14em] ${
+                      selected ? 'text-white/60' : 'text-muted'
+                    }`}
+                  >
+                    {p.meta}
+                  </span>
+                </button>
+                {p.githubUrl ? (
+                  <a
+                    href={p.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`View ${p.title} on GitHub`}
+                    className={`mt-3 inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition ${
+                      selected
+                        ? 'bg-paper text-ink hover:bg-signal hover:text-white'
+                        : 'border border-ink/15 bg-ink text-paper hover:bg-signal'
+                    }`}
+                  >
+                    View on GitHub
+                  </a>
+                ) : null}
+              </div>
             );
           })}
         </div>

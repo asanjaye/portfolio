@@ -15,7 +15,7 @@ const STAGES = [
     id: 'intake',
     name: 'Intake',
     role: 'Validated signals enter the workflow.',
-    position: [-2.35, 0.15, 0.2],
+    position: [-1.7, 0.05, 0.12],
     color: TEAL,
     emissive: '#0f766e',
     shape: 'box',
@@ -24,7 +24,7 @@ const STAGES = [
     id: 'llm',
     name: 'LLM Reasoning',
     role: 'Structured model decisions and summaries.',
-    position: [-0.75, 0.55, -0.15],
+    position: [-0.55, 0.32, -0.08],
     color: TEAL,
     emissive: '#0d9488',
     shape: 'octa',
@@ -33,7 +33,7 @@ const STAGES = [
     id: 'human',
     name: 'Human Gate',
     role: 'Nothing proceeds without recorded approval.',
-    position: [0.85, 0.2, 0.25],
+    position: [0.55, 0.08, 0.14],
     color: AMBER,
     emissive: '#c2410c',
     shape: 'cylinder',
@@ -42,7 +42,7 @@ const STAGES = [
     id: 'action',
     name: 'Action & Audit',
     role: 'Approved actions execute with a durable log.',
-    position: [2.4, 0.5, -0.1],
+    position: [1.7, 0.28, -0.06],
     color: SILVER,
     emissive: '#64748b',
     shape: 'box',
@@ -207,9 +207,9 @@ function OrchestrationCore({ selectedId, hoveredId, onSelect, onHover, reducedMo
       rotationIntensity={reducedMotion ? 0 : 0.08}
       floatIntensity={reducedMotion ? 0 : 0.2}
     >
-      <group position={[0, -0.15, 0]}>
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.55, 0]} receiveShadow>
-          <circleGeometry args={[3.4, 64]} />
+      <group position={[0, -0.05, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.48, 0]} receiveShadow>
+          <circleGeometry args={[2.8, 64]} />
           <meshStandardMaterial
             color="#111827"
             metalness={0.6}
@@ -258,8 +258,7 @@ function Scene({ selectedId, hoveredId, setSelectedId, setHoveredId, reducedMoti
 
   return (
     <>
-      <color attach="background" args={[BG]} />
-      <fog attach="fog" args={[BG, 8, 18]} />
+      <fog attach="fog" args={[BG, 10, 22]} />
       <ambientLight intensity={0.45} />
       <hemisphereLight args={['#dbeafe', '#0B1220', 0.55]} />
       <directionalLight
@@ -281,9 +280,9 @@ function Scene({ selectedId, hoveredId, setSelectedId, setHoveredId, reducedMoti
         reducedMotion={reducedMotion}
       />
       <ContactShadows
-        position={[0, -0.7, 0]}
-        opacity={0.45}
-        scale={14}
+        position={[0, -0.55, 0]}
+        opacity={0.4}
+        scale={12}
         blur={2.6}
         far={6}
       />
@@ -295,8 +294,9 @@ function Scene({ selectedId, hoveredId, setSelectedId, setHoveredId, reducedMoti
         dampingFactor={0.08}
         autoRotate={!reducedMotion}
         autoRotateSpeed={0.55}
-        minPolarAngle={Math.PI / 3.4}
-        maxPolarAngle={Math.PI / 1.85}
+        target={[0, 0.15, 0]}
+        minPolarAngle={Math.PI / 3.2}
+        maxPolarAngle={Math.PI / 1.9}
         onStart={(e) => {
           e.target._isDragging = true;
         }}
@@ -380,12 +380,16 @@ export default function HeroLaptop() {
       </div>
 
       <ErrorBoundary fallback={<FallbackArt />}>
-        <div className={CANVAS_H}>
+        <div className={`${CANVAS_H} bg-transparent`}>
           <Canvas
             dpr={[1, 1.6]}
-            camera={{ position: [0.2, 2.4, 6.2], fov: 38 }}
-            gl={{ antialias: true, alpha: false, preserveDrawingBuffer: true }}
+            camera={{ position: [0, 1.55, 8.1], fov: 34 }}
+            gl={{ antialias: true, alpha: true, preserveDrawingBuffer: true }}
+            style={{ background: 'transparent' }}
             shadows
+            onCreated={({ gl }) => {
+              gl.setClearColor(0x000000, 0);
+            }}
             onPointerMissed={() => setHoveredId(null)}
           >
             <Scene

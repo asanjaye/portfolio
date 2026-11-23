@@ -4,10 +4,10 @@ export const profile = {
   email: 'sanjaye@usc.edu',
   linkedin: 'https://www.linkedin.com/in/ashwin-sanjaye',
   github: 'https://github.com/asanjaye',
-  headline: 'AI agent & automation engineer',
+  headline: 'Software Engineer',
   subhead:
-    'I design human-in-the-loop AI workflows — lead intake, document Q&A, inbox triage, and document extraction — then ship them as reliable systems.',
-  availability: 'PRODUCTION AI WORKFLOWS & HUMAN-IN-THE-LOOP SYSTEMS',
+    'I build end-to-end software systems and human-in-the-loop AI workflows — lead intake, document Q&A, inbox triage, and document extraction — then ship them as reliable production systems.',
+  availability: 'SOFTWARE ENGINEERING & AI SYSTEMS',
 };
 
 export const about = {
@@ -49,6 +49,7 @@ export const pipelines = [
       'Reply drafts stay in a human approval dashboard — nothing goes out without review. Failures alert via Slack.',
     stack: ['n8n', 'Python/FastAPI', 'PostgreSQL', 'Docker', 'OpenAI/Anthropic'],
     eval: '25 labeled synthetic leads · eval script · 24 unit tests',
+    githubUrl: 'https://github.com/asanjaye/ai-lead-to-crm',
     nodes: [
       { id: 'intake', label: 'Webhook intake', kind: 'io', detail: 'Lead payload arrives via webhook and is validated before processing.' },
       { id: 'validate', label: 'Validate', kind: 'logic', detail: 'Schema and field checks reject malformed or incomplete leads early.' },
@@ -73,6 +74,7 @@ export const pipelines = [
       'Citations keep answers grounded in source sections. Low-confidence and out-of-scope questions escalate for human handoff instead of forcing an answer.',
     stack: ['Python/FastAPI', 'RAG', 'ChromaDB', 'sentence-transformers', 'n8n'],
     eval: '20-question eval set · 19 tests',
+    githubUrl: 'https://github.com/asanjaye/rag-doc-qa',
     nodes: [
       { id: 'ingest', label: 'Ingest docs', kind: 'io', detail: 'Documents enter the system for indexing.' },
       { id: 'chunk', label: 'Section chunk', kind: 'logic', detail: 'Section-aware chunking preserves document structure for better citations.' },
@@ -96,6 +98,7 @@ export const pipelines = [
       'Hard human approval gate in code — nothing sends without a recorded approval, covered by tests.',
     stack: ['Python/FastAPI', 'React', 'LLM', 'Gmail/IMAP/Outlook'],
     eval: '40 labeled synthetic emails · eval script · 27 tests',
+    githubUrl: 'https://github.com/asanjaye/ai-inbox-triage',
     nodes: [
       { id: 'mail', label: 'Mail source', kind: 'io', detail: 'Pluggable adapters for Gmail, IMAP, or Outlook.' },
       { id: 'triage', label: 'LLM triage', kind: 'ai', detail: 'Category, priority, needs-reply flag, and summary.' },
@@ -119,6 +122,7 @@ export const pipelines = [
       'Validation exceptions land in a human review queue with side-by-side document and fields — automation stops short of silent write-through on bad extractions.',
     stack: ['Node/TypeScript', 'OpenAI/Anthropic', 'SQLite', 'Docker', 'Google Sheets'],
     eval: '25 synthetic documents · ground-truth eval · 10 tests',
+    githubUrl: 'https://github.com/asanjaye/clearfile-doc-intake',
     nodes: [
       { id: 'upload', label: 'PDF / image', kind: 'io', detail: 'Invoices, purchase orders, and intake forms as PDF or images.' },
       { id: 'extract', label: 'LLM extract', kind: 'ai', detail: 'Structured field extraction via OpenAI or Anthropic.' },
