@@ -8,8 +8,11 @@ export default function Hero() {
   const reduce = useReducedMotion();
 
   return (
-    <section id="home" className="relative scroll-mt-20 pt-24 sm:pt-28 lg:pt-32">
-      <div className="mx-auto grid max-w-6xl items-center gap-10 px-5 pb-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:px-8 lg:pb-24">
+    <section
+      id="home"
+      className="relative flex min-h-[100svh] scroll-mt-20 items-center pt-20 sm:pt-24"
+    >
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-8 px-5 pb-12 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8 lg:px-8 lg:pb-16">
         <div>
           <motion.p
             className="mb-4 font-mono text-xs font-medium uppercase tracking-[0.22em] text-signal"

@@ -11,41 +11,51 @@ function usePrefersReducedMotion() {
 }
 
 function PipelineScreen({ reducedMotion }) {
-  const group = useRef();
+  const pulses = useRef([]);
   const nodes = useMemo(
     () => [
-      [-0.55, 0.18, 0.02],
-      [-0.18, 0.32, 0.02],
-      [0.18, 0.18, 0.02],
-      [0.55, 0.3, 0.02],
+      [-0.72, 0.12, 0.05],
+      [-0.24, 0.28, 0.05],
+      [0.24, 0.1, 0.05],
+      [0.72, 0.26, 0.05],
     ],
     []
   );
 
   useFrame((state) => {
-    if (reducedMotion || !group.current) return;
+    if (reducedMotion) return;
     const t = state.clock.elapsedTime;
-    group.current.children.forEach((child, i) => {
-      if (child.userData?.pulse) {
-        const s = 0.85 + Math.sin(t * 2.2 + i) * 0.15;
-        child.scale.setScalar(s);
-      }
+    pulses.current.forEach((mesh, i) => {
+      if (!mesh) return;
+      const s = 0.9 + Math.sin(t * 2.4 + i * 0.9) * 0.18;
+      mesh.scale.setScalar(s);
     });
   });
 
   return (
-    <group ref={group} position={[0, 0.55, -0.72]} rotation={[0.28, 0, 0]}>
-      <mesh position={[0, 0.05, 0]}>
-        <planeGeometry args={[2.35, 1.45]} />
-        <meshStandardMaterial color="#071018" metalness={0.2} roughness={0.45} />
+    <group position={[0, 0, 0.06]}>
+      <mesh>
+        <planeGeometry args={[2.2, 1.35]} />
+        <meshStandardMaterial color="#050a12" metalness={0.15} roughness={0.55} />
+      </mesh>
+      {/* subtle scan line */}
+      <mesh position={[0, 0, 0.01]}>
+        <planeGeometry args={[2.15, 0.02]} />
+        <meshStandardMaterial color="#14b8a6" transparent opacity={0.25} />
       </mesh>
       {nodes.map((pos, i) => (
-        <mesh key={i} position={pos} userData={{ pulse: true }}>
-          <sphereGeometry args={[0.07, 16, 16]} />
+        <mesh
+          key={i}
+          position={pos}
+          ref={(el) => {
+            pulses.current[i] = el;
+          }}
+        >
+          <sphereGeometry args={[0.075, 20, 20]} />
           <meshStandardMaterial
             color={i === 2 ? '#c2410c' : '#14b8a6'}
-            emissive={i === 2 ? '#c2410c' : '#0f766e'}
-            emissiveIntensity={0.55}
+            emissive={i === 2 ? '#9a3412' : '#0f766e'}
+            emissiveIntensity={0.7}
           />
         </mesh>
       ))}
@@ -61,8 +71,12 @@ function PipelineScreen({ reducedMotion }) {
         );
         return (
           <mesh key={`e-${i}`} position={mid.toArray()} quaternion={quat}>
-            <cylinderGeometry args={[0.012, 0.012, len, 8]} />
-            <meshStandardMaterial color="#1f6f68" emissive="#0f766e" emissiveIntensity={0.25} />
+            <cylinderGeometry args={[0.014, 0.014, len, 10]} />
+            <meshStandardMaterial
+              color="#1f6f68"
+              emissive="#0f766e"
+              emissiveIntensity={0.35}
+            />
           </mesh>
         );
       })}
@@ -76,32 +90,46 @@ function Laptop({ reducedMotion }) {
   useFrame((state) => {
     if (reducedMotion || !group.current) return;
     const t = state.clock.elapsedTime;
-    group.current.rotation.y = Math.sin(t * 0.35) * 0.12;
-    group.current.position.y = Math.sin(t * 0.55) * 0.05;
+    group.current.rotation.y = Math.sin(t * 0.32) * 0.1;
+    group.current.position.y = Math.sin(t * 0.5) * 0.04;
   });
 
   return (
     <Float
-      speed={reducedMotion ? 0 : 1.2}
-      rotationIntensity={reducedMotion ? 0 : 0.15}
-      floatIntensity={reducedMotion ? 0 : 0.4}
+      speed={reducedMotion ? 0 : 1.1}
+      rotationIntensity={reducedMotion ? 0 : 0.12}
+      floatIntensity={reducedMotion ? 0 : 0.35}
     >
-      <group ref={group} position={[0, -0.15, 0]} scale={1.15}>
-        <mesh position={[0, -0.05, 0.15]} castShadow>
-          <boxGeometry args={[2.6, 0.12, 1.7]} />
-          <meshStandardMaterial color="#1c2738" metalness={0.65} roughness={0.28} />
+      <group ref={group} position={[0, -0.35, 0]} rotation={[0.15, -0.35, 0]} scale={1.05}>
+        {/* Base */}
+        <mesh position={[0, 0, 0.2]} castShadow>
+          <boxGeometry args={[2.8, 0.1, 1.85]} />
+          <meshStandardMaterial color="#243044" metalness={0.7} roughness={0.25} />
         </mesh>
-        <mesh position={[0, 0.01, 0.2]}>
-          <boxGeometry args={[2.35, 0.02, 1.35]} />
-          <meshStandardMaterial color="#0b1220" metalness={0.4} roughness={0.5} />
+        {/* Keyboard deck */}
+        <mesh position={[0, 0.07, 0.28]}>
+          <boxGeometry args={[2.5, 0.03, 1.4]} />
+          <meshStandardMaterial color="#0b1220" metalness={0.35} roughness={0.55} />
         </mesh>
-        <group position={[0, 0.55, -0.72]} rotation={[0.28, 0, 0]}>
-          <mesh castShadow>
-            <boxGeometry args={[2.6, 1.65, 0.08]} />
-            <meshStandardMaterial color="#1c2738" metalness={0.65} roughness={0.28} />
+        {/* Trackpad */}
+        <mesh position={[0, 0.09, 0.72]}>
+          <boxGeometry args={[0.85, 0.02, 0.5]} />
+          <meshStandardMaterial color="#1a2333" metalness={0.4} roughness={0.4} />
+        </mesh>
+        {/* Lid + screen */}
+        <group position={[0, 0.05, -0.7]} rotation={[-0.38, 0, 0]}>
+          <mesh position={[0, 0.85, 0]} castShadow>
+            <boxGeometry args={[2.8, 1.75, 0.08]} />
+            <meshStandardMaterial color="#243044" metalness={0.7} roughness={0.25} />
           </mesh>
+          <mesh position={[0, 0.85, 0.05]}>
+            <boxGeometry args={[2.45, 1.5, 0.02]} />
+            <meshStandardMaterial color="#050a12" metalness={0.2} roughness={0.5} />
+          </mesh>
+          <group position={[0, 0.85, 0.07]}>
+            <PipelineScreen reducedMotion={reducedMotion} />
+          </group>
         </group>
-        <PipelineScreen reducedMotion={reducedMotion} />
       </group>
     </Float>
   );
@@ -111,18 +139,24 @@ export default function HeroLaptop() {
   const reducedMotion = usePrefersReducedMotion();
 
   return (
-    <div className="h-[340px] w-full sm:h-[420px] lg:h-[520px]" aria-hidden="true">
+    <div className="h-[300px] w-full sm:h-[380px] lg:h-[460px]" aria-hidden="true">
       <Canvas
-        dpr={[1, 1.75]}
-        camera={{ position: [4.2, 2.4, 5.2], fov: 38 }}
+        dpr={[1, 1.6]}
+        camera={{ position: [3.6, 2.2, 4.8], fov: 36 }}
         gl={{ antialias: true, alpha: true }}
       >
         <color attach="background" args={['transparent']} />
-        <ambientLight intensity={0.75} />
-        <directionalLight position={[5, 8, 4]} intensity={1.15} />
-        <pointLight position={[-3, 2, 2]} intensity={0.45} color="#14b8a6" />
+        <ambientLight intensity={0.7} />
+        <directionalLight position={[4, 7, 3]} intensity={1.2} />
+        <pointLight position={[-2.5, 1.5, 2]} intensity={0.5} color="#14b8a6" />
         <Laptop reducedMotion={reducedMotion} />
-        <ContactShadows position={[0, -1.15, 0]} opacity={0.35} scale={10} blur={2.5} far={4} />
+        <ContactShadows
+          position={[0, -1.2, 0]}
+          opacity={0.4}
+          scale={12}
+          blur={2.8}
+          far={5}
+        />
       </Canvas>
     </div>
   );
