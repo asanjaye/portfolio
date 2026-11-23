@@ -4,6 +4,9 @@ import { profile } from '../data/content';
 
 const HeroLaptop = lazy(() => import('./HeroLaptop'));
 
+const FALLBACK_H =
+  'flex h-[300px] items-center justify-center rounded-[1.15rem] bg-[#0B1220] font-mono text-sm text-signal-bright sm:h-[380px] lg:h-[460px]';
+
 export default function Hero() {
   const reduce = useReducedMotion();
 
@@ -57,31 +60,20 @@ export default function Hero() {
               href="#contact"
               className="rounded-full border border-line bg-surface px-5 py-3 text-sm font-semibold text-ink transition hover:border-signal hover:text-signal"
             >
-              Start a project
+              Get in touch
             </a>
           </motion.div>
         </div>
 
         <motion.div
-          className="relative rounded-[1.5rem] border border-line/80 bg-ink/95 p-2 shadow-[0_30px_80px_-40px_rgba(11,18,32,0.65)]"
+          className="relative rounded-[1.5rem] border border-line/80 bg-ink p-2 shadow-[0_30px_80px_-40px_rgba(11,18,32,0.65)]"
           initial={reduce ? false : { opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: reduce ? 0 : 0.12 }}
         >
-          <div className="overflow-hidden rounded-[1.15rem] bg-gradient-to-br from-ink via-ink-soft to-[#071018]">
-            <Suspense
-              fallback={
-                <div className="flex h-[340px] items-center justify-center font-mono text-sm text-signal-bright sm:h-[420px] lg:h-[520px]">
-                  Loading console…
-                </div>
-              }
-            >
-              <HeroLaptop />
-            </Suspense>
-          </div>
-          <p className="px-3 py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/55">
-            Live agent graph · human gate highlighted
-          </p>
+          <Suspense fallback={<div className={FALLBACK_H}>Loading orchestration core…</div>}>
+            <HeroLaptop />
+          </Suspense>
         </motion.div>
       </div>
     </section>

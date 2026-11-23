@@ -4,31 +4,29 @@ export const profile = {
   email: 'sanjaye@usc.edu',
   linkedin: 'https://www.linkedin.com/in/ashwin-sanjaye',
   github: 'https://github.com/asanjaye',
-  resumePath: '/Ashwin Sanjaye Resume March 2025.pdf',
   headline: 'AI agent & automation engineer',
   subhead:
     'I design human-in-the-loop AI workflows — lead intake, document Q&A, inbox triage, and document extraction — then ship them as reliable systems.',
-  availability:
-    'Available for freelance AI agent and automation work on Upwork and Contra.',
+  availability: 'PRODUCTION AI WORKFLOWS & HUMAN-IN-THE-LOOP SYSTEMS',
 };
 
 export const about = {
   paragraphs: [
-    'I am a Computer Science and Business Administration student at USC with a focus on building AI-integrated software end to end. I care about systems that are useful in production: structured outputs, evals, audit logs, and clear human approval gates.',
-    'I take business requirements and independently deliver full solutions — from workflow design and model integration to review UIs and deployment. Lately I have been building AI agent and automation demos and starting freelance work on Upwork and Contra.',
+    'I graduated from USC Viterbi in May 2025 with a B.S. in Computer Science & Business Administration, and completed the MIT Professional Education Applied AI and Data Science Program (2026). I build AI-integrated software end to end, with an emphasis on systems that hold up in production: structured outputs, evals, audit logs, and clear human approval gates.',
+    'I take business requirements and independently deliver full solutions — from workflow design and model integration to review UIs and deployment. Recent work centers on four AI automation systems for lead intake, document Q&A, inbox triage, and document extraction, each built with synthetic evals and human-in-the-loop controls.',
   ],
   skills: {
     Languages: ['Python', 'Java', 'JavaScript', 'TypeScript', 'C++'],
-    'AI & Automation': ['LLMs', 'RAG', 'n8n', 'FastAPI', 'Evals'],
+    'AI & Automation': ['LLMs', 'RAG', 'n8n', 'FastAPI', 'Evals', 'ChromaDB'],
     Frontend: ['React', 'TypeScript', 'HTML/CSS', 'Three.js'],
-    Backend: ['Node.js', 'Spring Boot', 'Flask', 'Express', 'PostgreSQL'],
+    'Backend & Cloud': ['Node.js', 'PostgreSQL', 'Redis', 'Docker', 'AWS', 'GitHub Actions'],
   },
 };
 
 export const experience = {
   title: 'Experience',
   summary:
-    'Two years building AI-integrated solutions end to end for companies across several industries. I take business requirements and independently deliver full-fledged systems — from architecture and model integration through interfaces, validation, and handoff.',
+    'Two years building software and AI-integrated solutions end to end for companies across several industries. I take business requirements and independently deliver full-fledged systems — from architecture and model integration through interfaces, validation, and handoff.',
   focus: [
     'End-to-end ownership from requirements to shipped solution',
     'AI workflows with structured outputs, validation, and human approval',
@@ -134,5 +132,5 @@ export const pipelines = [
 
 export const contactCopy = {
   title: 'Let’s build a workflow',
-  body: 'Hiring for AI automation — lead intake, document Q&A, inbox triage, or document extraction with human approval gates? Send a note or email directly.',
+  body: 'Interested in AI automation — lead intake, document Q&A, inbox triage, or document extraction with human approval gates? Send a note or email directly.',
 };

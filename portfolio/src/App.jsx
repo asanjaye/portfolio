@@ -3,7 +3,6 @@ import Hero from './components/Hero';
 import About from './components/About';
 import PipelineExplorer from './components/PipelineExplorer';
 import Experience from './components/Experience';
-import Resume from './components/Resume';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 
@@ -17,7 +16,6 @@ export default function App() {
         <About />
         <PipelineExplorer />
         <Experience />
-        <Resume />
         <Contact />
       </main>
       <Footer />

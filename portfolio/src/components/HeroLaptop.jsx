@@ -1,7 +1,53 @@
-import { useMemo, useRef } from 'react';
+import { Component, useMemo, useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { ContactShadows, Float } from '@react-three/drei';
+import { ContactShadows, Float, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
+
+const BG = '#0B1220';
+const TEAL = '#14b8a6';
+const AMBER = '#f97316';
+const SILVER = '#94a3b8';
+const CANVAS_H =
+  'h-[300px] w-full sm:h-[380px] lg:h-[460px]';
+
+const STAGES = [
+  {
+    id: 'intake',
+    name: 'Intake',
+    role: 'Validated signals enter the workflow.',
+    position: [-2.35, 0.15, 0.2],
+    color: TEAL,
+    emissive: '#0f766e',
+    shape: 'box',
+  },
+  {
+    id: 'llm',
+    name: 'LLM Reasoning',
+    role: 'Structured model decisions and summaries.',
+    position: [-0.75, 0.55, -0.15],
+    color: TEAL,
+    emissive: '#0d9488',
+    shape: 'octa',
+  },
+  {
+    id: 'human',
+    name: 'Human Gate',
+    role: 'Nothing proceeds without recorded approval.',
+    position: [0.85, 0.2, 0.25],
+    color: AMBER,
+    emissive: '#c2410c',
+    shape: 'cylinder',
+  },
+  {
+    id: 'action',
+    name: 'Action & Audit',
+    role: 'Approved actions execute with a durable log.',
+    position: [2.4, 0.5, -0.1],
+    color: SILVER,
+    emissive: '#64748b',
+    shape: 'box',
+  },
+];
 
 function usePrefersReducedMotion() {
   return useMemo(() => {
@@ -10,154 +56,352 @@ function usePrefersReducedMotion() {
   }, []);
 }
 
-function PipelineScreen({ reducedMotion }) {
-  const pulses = useRef([]);
-  const nodes = useMemo(
-    () => [
-      [-0.72, 0.12, 0.05],
-      [-0.24, 0.28, 0.05],
-      [0.24, 0.1, 0.05],
-      [0.72, 0.26, 0.05],
-    ],
-    []
-  );
+function makeCurve(a, b, lift = 0.55, sway = 0.2) {
+  const start = new THREE.Vector3(...a);
+  const end = new THREE.Vector3(...b);
+  const mid = start.clone().lerp(end, 0.5);
+  mid.y += lift;
+  mid.z += sway;
+  return new THREE.QuadraticBezierCurve3(start, mid, end);
+}
+
+function StageNode({ stage, selected, hovered, onSelect, onHover, reducedMotion }) {
+  const ref = useRef();
+  const ring = useRef();
 
   useFrame((state) => {
-    if (reducedMotion) return;
+    if (!ref.current) return;
     const t = state.clock.elapsedTime;
-    pulses.current.forEach((mesh, i) => {
-      if (!mesh) return;
-      const s = 0.9 + Math.sin(t * 2.4 + i * 0.9) * 0.18;
-      mesh.scale.setScalar(s);
-    });
+    const pulse = selected || hovered ? 1.08 : 1;
+    const breathe = reducedMotion ? 0 : Math.sin(t * 2 + stage.position[0]) * 0.03;
+    ref.current.scale.setScalar(pulse + breathe);
+    if (ring.current && !reducedMotion) {
+      ring.current.rotation.z = t * (stage.id === 'human' ? 0.7 : 0.35);
+      ring.current.rotation.x = Math.sin(t * 0.4) * 0.15;
+    }
   });
 
+  const geometry =
+    stage.shape === 'octa' ? (
+      <octahedronGeometry args={[0.38, 0]} />
+    ) : stage.shape === 'cylinder' ? (
+      <cylinderGeometry args={[0.32, 0.32, 0.55, 28]} />
+    ) : (
+      <boxGeometry args={[0.62, 0.62, 0.62]} />
+    );
+
   return (
-    <group position={[0, 0, 0.06]}>
-      <mesh>
-        <planeGeometry args={[2.2, 1.35]} />
-        <meshStandardMaterial color="#050a12" metalness={0.15} roughness={0.55} />
+    <group position={stage.position}>
+      <mesh
+        ref={ref}
+        castShadow
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelect(stage.id);
+        }}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          onHover(stage.id);
+          document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={() => {
+          onHover(null);
+          document.body.style.cursor = 'default';
+        }}
+      >
+        {geometry}
+        <meshPhysicalMaterial
+          color={stage.color}
+          metalness={0.55}
+          roughness={0.22}
+          emissive={stage.emissive}
+          emissiveIntensity={selected || hovered ? 0.85 : 0.45}
+          clearcoat={0.55}
+          clearcoatRoughness={0.25}
+        />
       </mesh>
-      {/* subtle scan line */}
-      <mesh position={[0, 0, 0.01]}>
-        <planeGeometry args={[2.15, 0.02]} />
-        <meshStandardMaterial color="#14b8a6" transparent opacity={0.25} />
+      <mesh ref={ring} rotation={[Math.PI / 2.4, 0, 0]}>
+        <torusGeometry args={[0.55, 0.018, 12, 64]} />
+        <meshStandardMaterial
+          color={stage.color}
+          emissive={stage.emissive}
+          emissiveIntensity={0.7}
+          metalness={0.8}
+          roughness={0.2}
+          transparent
+          opacity={0.85}
+        />
       </mesh>
-      {nodes.map((pos, i) => (
-        <mesh
-          key={i}
-          position={pos}
-          ref={(el) => {
-            pulses.current[i] = el;
-          }}
-        >
-          <sphereGeometry args={[0.075, 20, 20]} />
-          <meshStandardMaterial
-            color={i === 2 ? '#c2410c' : '#14b8a6'}
-            emissive={i === 2 ? '#9a3412' : '#0f766e'}
-            emissiveIntensity={0.7}
-          />
+      {(selected || hovered) && (
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <ringGeometry args={[0.7, 0.78, 48]} />
+          <meshBasicMaterial color={stage.color} transparent opacity={0.35} side={THREE.DoubleSide} />
         </mesh>
-      ))}
-      {[0, 1, 2].map((i) => {
-        const a = new THREE.Vector3(...nodes[i]);
-        const b = new THREE.Vector3(...nodes[i + 1]);
-        const mid = a.clone().lerp(b, 0.5);
-        const dir = b.clone().sub(a);
-        const len = dir.length();
-        const quat = new THREE.Quaternion().setFromUnitVectors(
-          new THREE.Vector3(0, 1, 0),
-          dir.clone().normalize()
-        );
-        return (
-          <mesh key={`e-${i}`} position={mid.toArray()} quaternion={quat}>
-            <cylinderGeometry args={[0.014, 0.014, len, 10]} />
-            <meshStandardMaterial
-              color="#1f6f68"
-              emissive="#0f766e"
-              emissiveIntensity={0.35}
-            />
-          </mesh>
-        );
-      })}
+      )}
     </group>
   );
 }
 
-function Laptop({ reducedMotion }) {
-  const group = useRef();
+function Conduit({ curve, color, reducedMotion }) {
+  const tube = useMemo(
+    () => new THREE.TubeGeometry(curve, 48, 0.028, 12, false),
+    [curve]
+  );
+
+  return (
+    <mesh geometry={tube}>
+      <meshStandardMaterial
+        color={color}
+        emissive={color}
+        emissiveIntensity={reducedMotion ? 0.2 : 0.35}
+        metalness={0.7}
+        roughness={0.3}
+        transparent
+        opacity={0.9}
+      />
+    </mesh>
+  );
+}
+
+function SignalPacket({ curve, delay, color, reducedMotion }) {
+  const ref = useRef();
 
   useFrame((state) => {
-    if (reducedMotion || !group.current) return;
-    const t = state.clock.elapsedTime;
-    group.current.rotation.y = Math.sin(t * 0.32) * 0.1;
-    group.current.position.y = Math.sin(t * 0.5) * 0.04;
+    if (!ref.current || reducedMotion) return;
+    const t = (state.clock.elapsedTime * 0.28 + delay) % 1;
+    const p = curve.getPointAt(t);
+    ref.current.position.copy(p);
+    const s = 0.75 + Math.sin(state.clock.elapsedTime * 6 + delay * 10) * 0.25;
+    ref.current.scale.setScalar(s);
   });
+
+  if (reducedMotion) return null;
+
+  return (
+    <mesh ref={ref}>
+      <sphereGeometry args={[0.07, 16, 16]} />
+      <meshStandardMaterial
+        color={color}
+        emissive={color}
+        emissiveIntensity={1.2}
+        metalness={0.2}
+        roughness={0.15}
+      />
+    </mesh>
+  );
+}
+
+function OrchestrationCore({ selectedId, hoveredId, onSelect, onHover, reducedMotion }) {
+  const curves = useMemo(
+    () => [
+      makeCurve(STAGES[0].position, STAGES[1].position, 0.6, 0.28),
+      makeCurve(STAGES[1].position, STAGES[2].position, 0.45, -0.22),
+      makeCurve(STAGES[2].position, STAGES[3].position, 0.55, 0.18),
+    ],
+    []
+  );
 
   return (
     <Float
-      speed={reducedMotion ? 0 : 1.1}
-      rotationIntensity={reducedMotion ? 0 : 0.12}
-      floatIntensity={reducedMotion ? 0 : 0.35}
+      speed={reducedMotion ? 0 : 0.9}
+      rotationIntensity={reducedMotion ? 0 : 0.08}
+      floatIntensity={reducedMotion ? 0 : 0.2}
     >
-      <group ref={group} position={[0, -0.35, 0]} rotation={[0.15, -0.35, 0]} scale={1.05}>
-        {/* Base */}
-        <mesh position={[0, 0, 0.2]} castShadow>
-          <boxGeometry args={[2.8, 0.1, 1.85]} />
-          <meshStandardMaterial color="#243044" metalness={0.7} roughness={0.25} />
+      <group position={[0, -0.15, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.55, 0]} receiveShadow>
+          <circleGeometry args={[3.4, 64]} />
+          <meshStandardMaterial
+            color="#111827"
+            metalness={0.6}
+            roughness={0.45}
+            transparent
+            opacity={0.55}
+          />
         </mesh>
-        {/* Keyboard deck */}
-        <mesh position={[0, 0.07, 0.28]}>
-          <boxGeometry args={[2.5, 0.03, 1.4]} />
-          <meshStandardMaterial color="#0b1220" metalness={0.35} roughness={0.55} />
-        </mesh>
-        {/* Trackpad */}
-        <mesh position={[0, 0.09, 0.72]}>
-          <boxGeometry args={[0.85, 0.02, 0.5]} />
-          <meshStandardMaterial color="#1a2333" metalness={0.4} roughness={0.4} />
-        </mesh>
-        {/* Lid + screen */}
-        <group position={[0, 0.05, -0.7]} rotation={[-0.38, 0, 0]}>
-          <mesh position={[0, 0.85, 0]} castShadow>
-            <boxGeometry args={[2.8, 1.75, 0.08]} />
-            <meshStandardMaterial color="#243044" metalness={0.7} roughness={0.25} />
-          </mesh>
-          <mesh position={[0, 0.85, 0.05]}>
-            <boxGeometry args={[2.45, 1.5, 0.02]} />
-            <meshStandardMaterial color="#050a12" metalness={0.2} roughness={0.5} />
-          </mesh>
-          <group position={[0, 0.85, 0.07]}>
-            <PipelineScreen reducedMotion={reducedMotion} />
-          </group>
-        </group>
+
+        {STAGES.map((stage) => (
+          <StageNode
+            key={stage.id}
+            stage={stage}
+            selected={selectedId === stage.id}
+            hovered={hoveredId === stage.id}
+            onSelect={onSelect}
+            onHover={onHover}
+            reducedMotion={reducedMotion}
+          />
+        ))}
+
+        {curves.map((curve, i) => {
+          const color = STAGES[i + 1].id === 'human' ? AMBER : TEAL;
+          return (
+            <group key={`c-${i}`}>
+              <Conduit curve={curve} color={color} reducedMotion={reducedMotion} />
+              <SignalPacket curve={curve} delay={i * 0.22} color={color} reducedMotion={reducedMotion} />
+              <SignalPacket curve={curve} delay={i * 0.22 + 0.5} color={color} reducedMotion={reducedMotion} />
+            </group>
+          );
+        })}
       </group>
     </Float>
   );
 }
 
-export default function HeroLaptop() {
-  const reducedMotion = usePrefersReducedMotion();
+function Scene({ selectedId, hoveredId, setSelectedId, setHoveredId, reducedMotion }) {
+  const controls = useRef();
+
+  useFrame(() => {
+    // Pause auto-rotate while user is dragging via OrbitControls state
+    if (controls.current) {
+      controls.current.autoRotate = !reducedMotion && !controls.current._isDragging;
+    }
+  });
 
   return (
-    <div className="h-[300px] w-full sm:h-[380px] lg:h-[460px]" aria-hidden="true">
-      <Canvas
-        dpr={[1, 1.6]}
-        camera={{ position: [3.6, 2.2, 4.8], fov: 36 }}
-        gl={{ antialias: true, alpha: true }}
-      >
-        <color attach="background" args={['transparent']} />
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[4, 7, 3]} intensity={1.2} />
-        <pointLight position={[-2.5, 1.5, 2]} intensity={0.5} color="#14b8a6" />
-        <Laptop reducedMotion={reducedMotion} />
-        <ContactShadows
-          position={[0, -1.2, 0]}
-          opacity={0.4}
-          scale={12}
-          blur={2.8}
-          far={5}
+    <>
+      <color attach="background" args={[BG]} />
+      <fog attach="fog" args={[BG, 8, 18]} />
+      <ambientLight intensity={0.45} />
+      <hemisphereLight args={['#dbeafe', '#0B1220', 0.55]} />
+      <directionalLight
+        position={[4.5, 6.5, 3]}
+        intensity={1.35}
+        castShadow
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
+      />
+      <pointLight position={[-3, 2.2, 2]} intensity={1.1} color={TEAL} />
+      <pointLight position={[2.2, 1.8, 2.4]} intensity={1.2} color={AMBER} />
+      <pointLight position={[0, -1.5, -2]} intensity={0.4} color="#64748b" />
+
+      <OrchestrationCore
+        selectedId={selectedId}
+        hoveredId={hoveredId}
+        onSelect={setSelectedId}
+        onHover={setHoveredId}
+        reducedMotion={reducedMotion}
+      />
+      <ContactShadows
+        position={[0, -0.7, 0]}
+        opacity={0.45}
+        scale={14}
+        blur={2.6}
+        far={6}
+      />
+      <OrbitControls
+        ref={controls}
+        enableZoom={false}
+        enablePan={false}
+        enableDamping
+        dampingFactor={0.08}
+        autoRotate={!reducedMotion}
+        autoRotateSpeed={0.55}
+        minPolarAngle={Math.PI / 3.4}
+        maxPolarAngle={Math.PI / 1.85}
+        onStart={(e) => {
+          e.target._isDragging = true;
+        }}
+        onEnd={(e) => {
+          e.target._isDragging = false;
+        }}
+      />
+    </>
+  );
+}
+
+function FallbackArt() {
+  return (
+    <div className={`${CANVAS_H} flex items-center justify-center bg-[#0B1220] px-6`}>
+      <svg viewBox="0 0 360 160" className="w-full max-w-md" aria-hidden="true">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#14b8a6" />
+            <stop offset="70%" stopColor="#f97316" />
+            <stop offset="100%" stopColor="#94a3b8" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M40 90 C 90 40, 130 40, 170 80 S 250 130, 320 70"
+          fill="none"
+          stroke="url(#g)"
+          strokeWidth="3"
+          strokeDasharray="6 8"
         />
-      </Canvas>
+        {[
+          [40, 90, '#14b8a6'],
+          [140, 55, '#14b8a6'],
+          [230, 105, '#f97316'],
+          [320, 70, '#94a3b8'],
+        ].map(([x, y, c]) => (
+          <g key={`${x}-${y}`}>
+            <circle cx={x} cy={y} r="12" fill={c} opacity="0.9" />
+            <circle cx={x} cy={y} r="18" fill="none" stroke={c} opacity="0.45" />
+          </g>
+        ))}
+      </svg>
+    </div>
+  );
+}
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
+
+export default function HeroLaptop() {
+  const reducedMotion = usePrefersReducedMotion();
+  const [selectedId, setSelectedId] = useState('human');
+  const [hoveredId, setHoveredId] = useState(null);
+  const activeId = hoveredId || selectedId;
+  const active = STAGES.find((s) => s.id === activeId) || STAGES[2];
+
+  return (
+    <div className="relative overflow-hidden rounded-[1.15rem] bg-[#0B1220]">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 p-4 sm:p-5">
+        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-teal-300/80">
+          Active stage
+        </p>
+        <p className="mt-1 font-display text-lg font-bold text-white sm:text-xl">
+          {active.name}
+        </p>
+        <p className="mt-1 max-w-sm text-xs leading-relaxed text-slate-300 sm:text-sm">
+          {active.role}
+        </p>
+      </div>
+
+      <ErrorBoundary fallback={<FallbackArt />}>
+        <div className={CANVAS_H}>
+          <Canvas
+            dpr={[1, 1.6]}
+            camera={{ position: [0.2, 2.4, 6.2], fov: 38 }}
+            gl={{ antialias: true, alpha: false, preserveDrawingBuffer: true }}
+            shadows
+            onPointerMissed={() => setHoveredId(null)}
+          >
+            <Scene
+              selectedId={selectedId}
+              hoveredId={hoveredId}
+              setSelectedId={setSelectedId}
+              setHoveredId={setHoveredId}
+              reducedMotion={reducedMotion}
+            />
+          </Canvas>
+        </div>
+      </ErrorBoundary>
+
+      <p className="px-3 py-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/55">
+        Drag to orbit · click a stage · human gate highlighted
+      </p>
     </div>
   );
 }

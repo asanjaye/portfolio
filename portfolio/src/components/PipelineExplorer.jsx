@@ -168,9 +168,21 @@ export default function PipelineExplorer() {
                 <p className="mt-1 font-mono text-xs text-muted">{active.meta}</p>
                 <p className="mt-2 text-sm text-slate sm:text-base">{active.tagline}</p>
               </div>
-              <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
-                Code and demo walkthrough available on request
-              </p>
+              <div className="flex flex-col items-start gap-2 sm:items-end">
+                {active.githubUrl ? (
+                  <a
+                    href={active.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center rounded-full border border-ink bg-ink px-4 py-2 text-sm font-semibold text-paper transition hover:bg-signal"
+                  >
+                    View on GitHub
+                  </a>
+                ) : null}
+                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
+                  Code and demo walkthrough available on request
+                </p>
+              </div>
             </div>
           </div>
 
@@ -259,7 +271,7 @@ export default function PipelineExplorer() {
         </div>
 
         <p className="mt-6 max-w-3xl text-sm leading-relaxed text-slate">
-          Hire me for AI automation — reach out via the{' '}
+          Interested in AI automation? Reach out via the{' '}
           <a href="#contact" className="font-semibold text-signal hover:underline">
             contact form
           </a>{' '}

@@ -5,7 +5,6 @@ const links = [
   { href: '#about', label: 'About' },
   { href: '#work', label: 'Work' },
   { href: '#experience', label: 'Experience' },
-  { href: '#resume', label: 'Resume' },
   { href: '#contact', label: 'Contact' },
 ];
 
@@ -62,7 +61,7 @@ export default function Navbar() {
             href="#contact"
             className="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper transition hover:bg-signal"
           >
-            Hire me
+            Get in touch
           </a>
         </div>
       </nav>
@@ -88,7 +87,7 @@ export default function Navbar() {
               className="mt-1 inline-flex w-fit rounded-full bg-ink px-4 py-2 text-sm font-semibold text-paper"
               onClick={() => setOpen(false)}
             >
-              Hire me
+              Get in touch
             </a>
           </div>
         </div>
